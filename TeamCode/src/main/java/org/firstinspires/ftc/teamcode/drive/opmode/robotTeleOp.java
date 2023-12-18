@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 @TeleOp
-public class slidesTest extends LinearOpMode {
+public class robotTeleOp extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         int armUpPosition = 1000;
