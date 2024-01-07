@@ -1,80 +1,88 @@
 package org.firstinspires.ftc.teamcode.drive.opmode;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 
 @TeleOp
-public class robotTeleOp extends LinearOpMode {
+public class robotTeleOp extends OpMode {
+    RobotHardware robot;
+
     @Override
-    public void runOpMode() throws InterruptedException {
-        int armUpPosition = 1000;
-        int armDownPosition = 1000;
+    public void init() {
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
-        DcMotor leftSlides = hardwareMap.dcMotor.get("leftSlides");
-        leftSlides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftSlides.setTargetPosition(armDownPosition);
-        leftSlides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot = new RobotHardware(hardwareMap);
 
-        DcMotor rightSlides = hardwareMap.dcMotor.get("rightSlides");
-        rightSlides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightSlides.setTargetPosition(armDownPosition);
-        rightSlides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        // Tell the driver that initialization is complete.
+        telemetry.addData("Status", "Initialized");
+    }
 
-        DcMotor intake = hardwareMap.dcMotor.get("intake");
-        DcMotor backRightMotor = hardwareMap.dcMotor.get("rightRear");
-        DcMotor backLeftMotor = hardwareMap.dcMotor.get("leftRear");
-        DcMotor frontRightMotor = hardwareMap.dcMotor.get("rightFront");
-        DcMotor frontLeftMotor = hardwareMap.dcMotor.get("leftFront");
 
-        waitForStart();
+    @Override
+    public void start() {
+        telemetry.addData("Status", "Running");
 
-        backRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        frontRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        while (opModeIsActive()) {
-            if (gamepad1.a) {
-                leftSlides.setTargetPosition(armUpPosition);
-                leftSlides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                leftSlides.setPower(0.5);
+    }
 
-                rightSlides.setTargetPosition(armUpPosition);
-                rightSlides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                rightSlides.setPower(0.5);
-            }
-            if (gamepad1.b) {
-                leftSlides.setTargetPosition(armDownPosition);
-                leftSlides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                leftSlides.setPower(0.5);
+    @Override
+    public void loop() {
+        driveControl();
+        liftControl();
+        manualControl();
+        airplaneLaunch();
+    }
 
-                rightSlides.setTargetPosition(armDownPosition);
-                rightSlides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                rightSlides.setPower(0.5);
-            }
-            double position = leftSlides.getCurrentPosition();
-            double desiredPosition = leftSlides.getTargetPosition();
-            telemetry.addData("Encoder Position", position);
-            telemetry.addData("Desired Position", desiredPosition);
-            telemetry.update();
+    private void driveControl() {
+        double scale = 0.8;
+        if (gamepad1.left_bumper) {
+            gamepad1.rumble(500);
+            scale = 1;
+        } else if (gamepad1.left_trigger > 0.5) {
+            scale = 0.5;
+        }
 
-            double y = -gamepad1.left_stick_y; // Remember, Y stick value is reversed
-            double x = gamepad1.left_stick_x; // Counteract imperfect strafing
-            double rx = gamepad1.right_stick_x;
+        double drive = gamepad1.left_stick_y;
+        double strafe = -gamepad1.left_stick_x;
+        double turn = -gamepad1.right_stick_x;
+        robot.startMove(drive, strafe, turn, scale);
 
-            // Denominator is the largest motor power (absolute value) or 1
-            // This ensures all the powers maintain the same ratio,
-            // but only if at least one is out of the range [-1, 1]
-            double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
-            double frontLeftPower = (y + x + rx) / denominator;
-            double backLeftPower = (y - x + rx) / denominator;
-            double frontRightPower = (y - x - rx) / denominator;
-            double backRightPower = (y + x - rx) / denominator;
-            frontLeftMotor.setPower(frontLeftPower);
-            backLeftMotor.setPower(backLeftPower);
-            frontRightMotor.setPower(frontRightPower);
-            backRightMotor.setPower(backRightPower);
-            intake.setPower(-0.9);
+        robot.telemetryUpdate(telemetry);
+
+    }
+
+    private void liftControl() {
+        if (gamepad1.a) {
+            robot.Intake();
+        }
+        if (gamepad1.b) {
+            robot.Low();
+        }
+        if (gamepad1.x) {
+            robot.Medium();
+        }
+        if (gamepad1.y) {
+
+        robot.High();
+        }
+        if (gamepad1.left_bumper && gamepad1.right_bumper) {
+            robot.Hover();
+        }
+    }
+
+    private void manualControl() {
+
+    }
+
+    private void airplaneLaunch() {
+        if (gamepad1.dpad_right) {
+            robot.launch();
         }
     }
 }

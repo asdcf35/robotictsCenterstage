@@ -1,0 +1,52 @@
+package org.firstinspires.ftc.teamcode.robotUtils;
+
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
+
+public class Lift {
+    public DcMotor motorR;
+    public DcMotor motorL;
+    public DcMotor[] motors;
+
+
+    public static int LIFT_HIGH_POS = 3100;
+    public static int LIFT_INTAKE_POS = 0;
+
+    enum States {
+        LOW,
+        MEDIUM,
+        HIGH
+    }
+
+    public Lift(HardwareMap hardwareMap) {
+        // hardware map
+        motorR = hardwareMap.dcMotor.get("leftSlides");
+        motorL = hardwareMap.dcMotor.get("rightSlides");
+        motors = new DcMotor[]{motorR, motorL};
+
+        // Set directions for motors that require a change
+        motorR.setDirection(DcMotorSimple.Direction.REVERSE);
+        motorL.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        // Set motor modes
+        for (DcMotor motor : motors) {
+            motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        }
+    }
+
+    public void Low() {
+        motorL.setTargetPosition(Lift.LIFT_INTAKE_POS);
+        motorL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motorL.setPower(1);
+        motorR.setTargetPosition(Lift.LIFT_INTAKE_POS);
+        motorR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motorR.setPower(1);
+        // servo intake pos
+        // set intake on
+        currentState = RobotHardware.States.INTAKE;
+    }
+}
