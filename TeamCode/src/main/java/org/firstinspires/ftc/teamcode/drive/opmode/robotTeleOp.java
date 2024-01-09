@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
+
 @TeleOp
 public class robotTeleOp extends OpMode {
     RobotHardware robot;
@@ -33,10 +34,27 @@ public class robotTeleOp extends OpMode {
 
     @Override
     public void loop() {
+        liftControlKey();
+        airplaneLaunchKey();
+        // java functions stop other code running, so we make a switch case, switch case code are non-blocking code, so other code can be run
+        switch (robot.currentState) {
+            // the cases for intake
+            case INTAKE:
+                robot.Intake();
+            case LOW:
+                robot.Low();
+            case MEDIUM:
+                robot.Medium();
+            case HIGH:
+                robot.High();
+            case HOVER:
+                robot.Hover();
+                // this code is not blocked, because of the FSM. You can do this even if the other is happening.
+        }
         driveControl();
-        liftControl();
-        manualControl();
-        airplaneLaunch();
+    }
+
+    private void airplaneLaunchKey() {
     }
 
     private void driveControl() {
@@ -57,32 +75,22 @@ public class robotTeleOp extends OpMode {
 
     }
 
-    private void liftControl() {
+    private void liftControlKey() {
+
         if (gamepad1.a) {
-            robot.Intake();
+            robot.currentState = RobotHardware.States.INTAKE;
         }
         if (gamepad1.b) {
-            robot.Low();
+            robot.currentState = RobotHardware.States.LOW;
         }
         if (gamepad1.x) {
-            robot.Medium();
+            robot.currentState = RobotHardware.States.MEDIUM;
         }
         if (gamepad1.y) {
-
-        robot.High();
+            robot.currentState = RobotHardware.States.HIGH;
         }
         if (gamepad1.left_bumper && gamepad1.right_bumper) {
-            robot.Hover();
-        }
-    }
-
-    private void manualControl() {
-
-    }
-
-    private void airplaneLaunch() {
-        if (gamepad1.dpad_right) {
-            robot.launch();
+            robot.currentState = RobotHardware.States.HOVER;
         }
     }
 }

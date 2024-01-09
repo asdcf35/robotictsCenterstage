@@ -13,7 +13,7 @@ public class RobotHardware {
     public DriveTrain drivetrain;
 
 
-    public States currentState = States.INTAKE;
+    public States INTAKE;
 
     public DcMotor motorR;
     public DcMotor motorL;
@@ -32,9 +32,9 @@ public class RobotHardware {
     public static int LIFT_INTAKE_POS = 0;
     public static int LIFT_HOVER_POS = 125;
     public static int LIFT_LOW_POS = 250;
-    public static int LIFT_MEDIUM_POS = 500;
+    public static int LIFT_MEDIUM_POS = 200;
     public static int LIFT_HIGH_POS = 1000;
-    
+
     // Robot states
     enum States {
         INTAKE,
@@ -47,11 +47,9 @@ public class RobotHardware {
         HANG_TOP,
         HANG_GRAB,
     }
+    public States currentState;
 
     public RobotHardware(HardwareMap hardwareMap) {
-        
-    }
-    public void Lift(HardwareMap hardwareMap) {
         // hardware map
         motorL = hardwareMap.get(DcMotor.class, "leftSlides");
 
@@ -62,72 +60,11 @@ public class RobotHardware {
 
         motorR = hardwareMap.get(DcMotor.class, "rightSlides");
 
-        motorR.setDirection(DcMotorSimple.Direction.FORWARD);
+        motorR.setDirection(DcMotorSimple.Direction.REVERSE);
         motorR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         motorR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-    }
-
-        public void Intake () {
-            motorL.setTargetPosition(LIFT_INTAKE_POS);
-            motorL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            motorL.setPower(1);
-            motorR.setTargetPosition(LIFT_INTAKE_POS);
-            motorR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            motorR.setPower(1);
-            // servo intake pos
-            // set intake on
-            currentState = States.INTAKE;
-
-        }
-
-        public void Hover () {
-            motorL.setTargetPosition(LIFT_INTAKE_POS);
-            motorL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            motorL.setPower(1);
-            motorR.setTargetPosition(LIFT_INTAKE_POS);
-            motorR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            motorR.setPower(1);
-            // servo hover pos
-            // set intake off
-            currentState = States.HOVER;
-        }
-        public void Low () {
-            motorL.setTargetPosition(LIFT_LOW_POS);
-            motorL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            motorL.setPower(1);
-            motorR.setTargetPosition(LIFT_LOW_POS);
-            motorR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            motorR.setPower(1);
-            // servo low pos
-            currentState = RobotHardware.States.LOW;
-        }
-        public void Medium () {
-            motorL.setTargetPosition(LIFT_MEDIUM_POS);
-            motorL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            motorL.setPower(1);
-            motorR.setTargetPosition(LIFT_MEDIUM_POS);
-            motorR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            motorR.setPower(1);
-            // servo low pos
-            currentState = RobotHardware.States.MEDIUM;
-        }
-        public void High () {
-            motorL.setTargetPosition(LIFT_HIGH_POS);
-            motorL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            motorL.setPower(1);
-            motorR.setTargetPosition(LIFT_HIGH_POS);
-            motorR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            motorR.setPower(1);
-            // servo low pos
-            currentState = RobotHardware.States.HIGH;
-        }
-
-
-
-    public void DriveTrain(HardwareMap hardwareMap) {
-        // hardware map
         motorFR = hardwareMap.dcMotor.get("rightRear");
         motorFL = hardwareMap.dcMotor.get("leftRear");
         motorBR = hardwareMap.dcMotor.get("rightFront");
@@ -143,7 +80,59 @@ public class RobotHardware {
             motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         }
+
+        airplaneLauncher = hardwareMap.get(Servo.class,"airplaneLauncher");
     }
+
+        public void Intake () {
+            motorL.setTargetPosition(LIFT_INTAKE_POS);
+            motorL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            motorL.setPower(0.5);
+            motorR.setTargetPosition(-LIFT_INTAKE_POS);
+            motorR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            motorR.setPower(0.5);
+            // servo intake pos
+            // set intake on
+
+        }
+
+        public void Hover () {
+            motorL.setTargetPosition(LIFT_INTAKE_POS);
+            motorL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            motorL.setPower(0.5);
+            motorR.setTargetPosition(-LIFT_INTAKE_POS);
+            motorR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            motorR.setPower(0.5);
+            // servo hover pos
+            // set intake off
+        }
+        public void Low () {
+            motorL.setTargetPosition(LIFT_LOW_POS);
+            motorL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            motorL.setPower(0.5);
+            motorR.setTargetPosition(-LIFT_LOW_POS);
+            motorR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            motorR.setPower(0.5);
+            // servo low pos
+        }
+        public void Medium () {
+            motorL.setTargetPosition(LIFT_MEDIUM_POS);
+            motorL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            motorL.setPower(0.5);
+            motorR.setTargetPosition(-LIFT_MEDIUM_POS);
+            motorR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            motorR.setPower(-0.5);
+            // servo low pos
+        }
+        public void High () {
+            motorL.setTargetPosition(LIFT_HIGH_POS);
+            motorL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            motorL.setPower(0.5);
+            motorR.setTargetPosition(-LIFT_HIGH_POS);
+            motorR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            motorR.setPower(0.5);
+            // servo low pos
+        }
     public void startMove(double drive, double strafe, double turn, double scale) {
         double powerFL = (drive + strafe + turn) * scale;
         double powerFR = (drive - strafe - turn) * scale;
@@ -163,9 +152,10 @@ public class RobotHardware {
         telemetry.addData("BR pos", motorBR.getCurrentPosition());
         telemetry.addData("FR pos", motorFR.getCurrentPosition());
         telemetry.addData("FL pos", motorFL.getCurrentPosition());
+        telemetry.addData("L pos",motorL.getCurrentPosition());
+        telemetry.addData("R pos", motorR.getCurrentPosition());
     }
     public void setAirplaneLauncher(HardwareMap hardwareMap){
-        airplaneLauncher = hardwareMap.get(Servo.class,"airplaneLauncher");
     }
     public void launch(){
         airplaneLauncher.setPosition(AIRPLANE_LAUNCHER_LAUNCH_POS);
