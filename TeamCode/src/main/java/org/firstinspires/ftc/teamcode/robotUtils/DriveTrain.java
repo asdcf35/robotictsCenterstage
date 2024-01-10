@@ -22,8 +22,8 @@ public class DriveTrain {
         motors = new DcMotor[] {motorFR, motorFL, motorBR, motorBL};
 
         // Set directions for motors that require a change
-        motorBL.setDirection(DcMotorSimple.Direction.REVERSE);
         motorFR.setDirection(DcMotorSimple.Direction.REVERSE);
+        motorFL.setDirection(DcMotorSimple.Direction.REVERSE);
 
         for (DcMotor motor : motors) {
             motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);

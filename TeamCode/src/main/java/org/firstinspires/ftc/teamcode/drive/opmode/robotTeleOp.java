@@ -17,7 +17,7 @@ public class robotTeleOp extends OpMode {
     public void init() {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
-        robot = new RobotHardware(hardwareMap);
+        robot = new RobotHardware(hardwareMap, false);
 
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
@@ -36,24 +36,23 @@ public class robotTeleOp extends OpMode {
         driveControl();
         liftControl();
         manualControl();
-        airplaneLaunch();
+//        airplaneLaunch();
     }
 
     private void driveControl() {
-        double scale = 0.8;
+        double scale = 0.3;
         if (gamepad1.left_bumper) {
-            gamepad1.rumble(500);
-            scale = 1;
-        } else if (gamepad1.left_trigger > 0.5) {
+//            gamepad1.rumble(500);
             scale = 0.5;
+        } else if (gamepad1.left_trigger > 0.5) {
+            scale = 0.1;
         }
-
         double drive = gamepad1.left_stick_y;
         double strafe = -gamepad1.left_stick_x;
         double turn = -gamepad1.right_stick_x;
-        robot.startMove(drive, strafe, turn, scale);
+        robot.driveTrain.startMove(drive, strafe, turn, scale);
 
-        robot.telemetryUpdate(telemetry);
+//        robot.driveTrain.telemetryUpdate(telemetry);
 
     }
 
@@ -80,9 +79,9 @@ public class robotTeleOp extends OpMode {
 
     }
 
-    private void airplaneLaunch() {
-        if (gamepad1.dpad_right) {
-            robot.launch();
-        }
-    }
+//    private void airplaneLaunch() {
+//        if (gamepad1.dpad_right) {
+//            robot.launch();
+//        }
+//    }
 }
