@@ -17,9 +17,7 @@ public class robotTeleOp extends OpMode {
     public void init() {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
-        robot = new RobotHardware(hardwareMap, false);
-
-        // Tell the driver that initialization is complete.
+        robot = new RobotHardware(hardwareMap, false);       // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
     }
 
@@ -51,7 +49,6 @@ public class robotTeleOp extends OpMode {
         double strafe = -gamepad1.left_stick_x;
         double turn = -gamepad1.right_stick_x;
         robot.driveTrain.startMove(drive, strafe, turn, scale);
-
 //        robot.driveTrain.telemetryUpdate(telemetry);
 
     }
@@ -67,7 +64,6 @@ public class robotTeleOp extends OpMode {
             robot.Medium();
         }
         if (gamepad1.y) {
-
         robot.High();
         }
         if (gamepad1.left_bumper && gamepad1.right_bumper) {
