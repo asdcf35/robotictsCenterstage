@@ -5,11 +5,11 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 @Autonomous(group = "drive")
-public class nearSideParkAndStrafeOnly extends AutoCommon {
+public class redNearSimplyPark extends AutoCommon {
     @Override
     public void runOpMode() {
         super.runOpMode();
 
-        strafeOnHeading(24,0.3,0);
+        driveOnHeading(-48, 0.3, 0);
     }
 }

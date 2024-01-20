@@ -95,9 +95,8 @@ public class RobotHardware {
         private static final int HANG_GRAB_POS = 250;
         public DcMotor motorLiftR;
         public DcMotor motorLift;
-
         public DcMotor motorIntakeHighSpeed;
-        public DcMotor motorIntakeModerateSpeed;
+        public DcMotor motorIntakeLowSpeed;
         public DcMotor motorHang;
         public int LIFT_HIGH_POS = 3100;
         public int LIFT_MID_POS = 2150;
@@ -106,24 +105,23 @@ public class RobotHardware {
         public int LIFT_INTAKE_POS = 0;
 
         public Lift(HardwareMap hardwareMap) {
-            motorIntakeHighSpeed = hardwareMap.get(DcMotor.class, "intake");
+            motorIntakeHighSpeed = hardwareMap.get(DcMotor.class, "intakeHS");
             motorIntakeHighSpeed.setDirection(DcMotorSimple.Direction.FORWARD);
             motorIntakeHighSpeed.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             motorIntakeHighSpeed.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             motorIntakeHighSpeed.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-            motorIntakeModerateSpeed = hardwareMap.get(DcMotor.class, "intake");
-            motorIntakeModerateSpeed.setDirection(DcMotorSimple.Direction.FORWARD);
-            motorIntakeModerateSpeed.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            motorIntakeModerateSpeed.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            motorIntakeModerateSpeed.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            motorIntakeLowSpeed = hardwareMap.get(DcMotor.class, "intakeLS");
+            motorIntakeLowSpeed.setDirection(DcMotorSimple.Direction.FORWARD);
+            motorIntakeLowSpeed.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            motorIntakeLowSpeed.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            motorIntakeLowSpeed.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-            motorHang = hardwareMap.get(DcMotor.class, "hang");
-            motorHang.setDirection(DcMotorSimple.Direction.FORWARD);
-            motorHang.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            motorHang.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            motorHang.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//            ElapsedTime elapsedTime = new ElapsedTime();
+            motorLift = hardwareMap.get(DcMotor.class, "motorLift");
+            motorLift.setDirection(DcMotorSimple.Direction.FORWARD);
+            motorLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            motorLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            motorLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         }
     }
     public class Airplane {
@@ -154,8 +152,8 @@ public class RobotHardware {
 
 
             motorFL.setDirection(DcMotorSimple.Direction.FORWARD);
-            motorFR.setDirection(DcMotorSimple.Direction.REVERSE);
             motorBL.setDirection(DcMotorSimple.Direction.FORWARD);
+            motorFR.setDirection(DcMotorSimple.Direction.REVERSE);
             motorBR.setDirection(DcMotorSimple.Direction.REVERSE);
 
             for (DcMotor motor : motors) {
@@ -212,12 +210,12 @@ public class RobotHardware {
 
 
     public void Intake() {
-        lift.motorLift.setTargetPosition(-LIFT_INTAKE_POS);
-        lift.motorLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        lift.motorLift.setPower(0.4);
+//        lift.motorLift.setTargetPosition(-LIFT_INTAKE_POS);
+//        lift.motorLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//        lift.motorLift.setPower(0.4);
         // servo intake pos
-        lift.motorIntakeHighSpeed.setPower(0.4);
-        lift.motorIntakeModerateSpeed.setPower(0.4);
+        lift.motorIntakeHighSpeed.setPower(-1);
+        lift.motorIntakeLowSpeed.setPower(1);
         currentState = States.INTAKE;
 
     }
@@ -233,7 +231,7 @@ public class RobotHardware {
     }
 
     public void Low() {
-        lift.motorLift.setTargetPosition(LIFT_LOW_POS);
+        lift.motorLift.setTargetPosition(-LIFT_LOW_POS);
         lift.motorLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         lift.motorLift.setPower(0.4);
         // servo low pos
@@ -241,7 +239,7 @@ public class RobotHardware {
     }
 
     public void Medium() {
-        lift.motorLift.setTargetPosition(-LIFT_MEDIUM_POS);
+        lift.motorLift.setTargetPosition(LIFT_MEDIUM_POS);
         lift.motorLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         lift.motorLift.setPower(0.4);
         // servo low pos
