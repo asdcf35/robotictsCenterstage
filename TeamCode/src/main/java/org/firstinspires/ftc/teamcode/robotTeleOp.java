@@ -13,7 +13,7 @@ public class robotTeleOp extends OpMode {
     public void init() {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
-        robot = new RobotHardware(hardwareMap, false, true, true, true);       // Tell the driver that initialization is complete.
+        robot = new RobotHardware(hardwareMap, false, false, true, false);       // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
     }
 
@@ -31,7 +31,7 @@ public class robotTeleOp extends OpMode {
         liftControl();
         hangControl();
         manualControl();
-        airplaneLaunch();
+//        airplaneLaunch();
     }
 
     private void driveControl() {
@@ -68,16 +68,30 @@ public class robotTeleOp extends OpMode {
         }
         if(robot.currentState != RobotHardware.States.INTAKE){
             robot.lift.motorIntakeHighSpeed.setPower(0);
+            robot.lift.servoIntake.setPosition(robot.lift.SERVO_INTAKE_HOVER_POS);
         }
     }
 
     private void manualControl() {
+        if (gamepad1.dpad_left) {
+            robot.lift.servoIntake.setPosition(0);
+        }
+        if (gamepad1.dpad_right) {
+            robot.lift.servoIntake.setPosition(0.25);
+        }
+        if (gamepad1.dpad_up) {
+            robot.lift.servoIntake.setPosition(0.5);
+        }
+        if (gamepad1.dpad_down)
+        {
+            robot.lift.servoIntake.setPosition(0.75);
+        }
     }
     private void hangControl(){
     }
-    private void airplaneLaunch() {
-        if (gamepad1.dpad_right) {
-            robot.airplane.launch();
-        }
-    }
+//    private void airplaneLaunch() {
+//        if (gamepad1.dpad_right) {
+//            robot.airplane.launch();
+//        }
+    //}
 }

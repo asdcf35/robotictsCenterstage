@@ -34,8 +34,8 @@ public class SimpleTepAirplaneLauncher extends OpMode {
         airplaneLaunch();
     }
     private void airplaneLaunch() {
-        if (gamepad1.dpad_right) {
-            robot.airplane.launch();
-        }
+        //if (gamepad1.dpad_right) {
+        //    robot.airplane.launch();
+        //}
     }
 }

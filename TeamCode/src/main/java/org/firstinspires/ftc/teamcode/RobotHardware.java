@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -19,7 +20,6 @@ public class RobotHardware {
 
     public DriveTrain driveTrain;
     public Lift lift;
-    public Airplane airplane;
     public static final double WHEEL_DIAMETER = 6.0;
     public static final double DRIVE_MOTOR_TICKS_PER_ROTATION = 385.5; //changing from 537.6
 
@@ -33,9 +33,6 @@ public class RobotHardware {
         }
         if(initLift) {
             lift = new Lift(hardwareMap);
-        }
-        if(initAirplane){
-            airplane = new Airplane(hardwareMap);
         }
         if (initIMU) {
             initializeIMU();
@@ -93,26 +90,45 @@ public class RobotHardware {
         private static final int HANG_INIT_POS = 0;
         private static final int HANG_TOP_POS = 1000;
         private static final int HANG_GRAB_POS = 250;
-        public DcMotor motorLiftR;
         public DcMotor motorLift;
         public DcMotor motorIntakeHighSpeed;
         public DcMotor motorIntakeLowSpeed;
         public DcMotor motorHang;
+        public Servo servoIntake;
+        public Servo servoLauncher;
+        public Servo servoBucket;
+
         public int LIFT_HIGH_POS = 3100;
         public int LIFT_MID_POS = 2150;
         public int LIFT_LOW_POS = 1250;
         public int LIFT_HOVER_POS = 100;
         public int LIFT_INTAKE_POS = 0;
 
+        public double INTAKE_HS_POWER = 0;
+
+        public double INTAKE_LS_POWER = 0;
+
+        public double SERVO_INTAKE_INIT_POS = 0.8; //0.8
+        public double SERVO_INTAKE_REG_POS = 0.3;
+        public double SERVO_INTAKE_STACK_POS = 0;
+        public double SERVO_INTAKE_HOVER_POS = 0;
+
+        public double SERVO_LAUNCHER_INT_POS = 0.25;
+        public double SERVO_LAUNCHER_LAUNCH_POS = 0.75;
+
+        public double SERVO_BUCKET_INIT_POS = 0.47;
+        public double SERVO_BUCKET_INTAKE_POS = 0;
+        public double SERVO_BUCKET_OUTAKE_POS = 0;
+
         public Lift(HardwareMap hardwareMap) {
             motorIntakeHighSpeed = hardwareMap.get(DcMotor.class, "intakeHS");
-            motorIntakeHighSpeed.setDirection(DcMotorSimple.Direction.FORWARD);
+            motorIntakeHighSpeed.setDirection(DcMotorSimple.Direction.REVERSE);
             motorIntakeHighSpeed.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             motorIntakeHighSpeed.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             motorIntakeHighSpeed.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
             motorIntakeLowSpeed = hardwareMap.get(DcMotor.class, "intakeLS");
-            motorIntakeLowSpeed.setDirection(DcMotorSimple.Direction.FORWARD);
+            motorIntakeLowSpeed.setDirection(DcMotorSimple.Direction.REVERSE);
             motorIntakeLowSpeed.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             motorIntakeLowSpeed.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             motorIntakeLowSpeed.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -122,18 +138,16 @@ public class RobotHardware {
             motorLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             motorLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             motorLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        }
-    }
-    public class Airplane {
-        Servo airplaneLauncher; 
 
-        public Airplane(HardwareMap hardwareMap) {
-            airplaneLauncher = hardwareMap.get(Servo.class, "airplaneLauncher");
-        }
-        public void launch() {
-            airplaneLauncher.setPosition(AIRPLANE_LAUNCHER_LAUNCH_POS);
-        }
+            servoIntake = hardwareMap.get(Servo.class, "servoIntake");
+            servoIntake.setPosition(SERVO_INTAKE_REG_POS);
 
+            servoLauncher = hardwareMap.get(Servo.class, "servoLauncher");
+            servoLauncher.setPosition(SERVO_LAUNCHER_INT_POS);
+
+            servoBucket = hardwareMap.get(Servo.class, "servoBucket");
+            servoBucket.setPosition(SERVO_BUCKET_INIT_POS);
+        }
     }
     public class DriveTrain {
         public DcMotor motorFL;
@@ -210,28 +224,21 @@ public class RobotHardware {
 
 
     public void Intake() {
-//        lift.motorLift.setTargetPosition(-LIFT_INTAKE_POS);
-//        lift.motorLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//        lift.motorLift.setPower(0.4);
-        // servo intake pos
-        lift.motorIntakeHighSpeed.setPower(-1);
-        lift.motorIntakeLowSpeed.setPower(1);
+        lift.motorIntakeHighSpeed.setPower(lift.INTAKE_HS_POWER);
+        lift.motorIntakeLowSpeed.setPower(lift.INTAKE_LS_POWER);
+//        lift.servoIntake.setPosition(lift.SERVO_INTAKE_REG_POS);
         currentState = States.INTAKE;
-
     }
 
     public void Hover() {
         lift.motorLift.setTargetPosition(LIFT_INTAKE_POS);
         lift.motorLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         lift.motorLift.setPower(0.4);
-
-        // servo hover pos
-        // set intake off
         currentState = States.HOVER;
     }
 
     public void Low() {
-        lift.motorLift.setTargetPosition(-LIFT_LOW_POS);
+        lift.motorLift.setTargetPosition(LIFT_LOW_POS);
         lift.motorLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         lift.motorLift.setPower(0.4);
         // servo low pos

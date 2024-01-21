@@ -9,6 +9,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+
 @TeleOp(name = "Intake Test", group = "TeleOp")
 public class test extends LinearOpMode {
     private RobotHardware robot;
@@ -20,9 +22,43 @@ public class test extends LinearOpMode {
         // Wait for the start button to be pressed
         waitForStart();
         while (opModeIsActive()) {
-            // Gamepad input for driv
-            robot.Medium();
+            if (gamepad1.right_bumper) {
+                robot.lift.servoIntake.setPosition(0.28);
+            } else {
+                robot.lift.servoIntake.setPosition(robot.lift.SERVO_INTAKE_REG_POS );
+            }
+
+            if (gamepad1.a) {
+                robot.lift.motorIntakeHighSpeed.setPower(0.7);
+                robot.lift.motorIntakeLowSpeed.setPower(0.7);
+
+            } else {
+                robot.lift.motorIntakeHighSpeed.setPower(0);
+                robot.lift.motorIntakeLowSpeed.setPower(0);
+            }
+
+            if (gamepad1.dpad_down) {
+                robot.lift.servoBucket.setPosition(0.15);
+            }
+            if (gamepad1.dpad_up) {
+                robot.lift.servoBucket.setPosition(0.25);
+            }
+            if (gamepad1.dpad_right) {
+                robot.lift.servoBucket.setPosition(0.47);
+            }
+            if (gamepad1.dpad_left) {
+                robot.lift.servoBucket.setPosition(0.75);
+            }
+
+            if (gamepad1.right_trigger > 0.5) {
+                robot.lift.servoBucket.setPosition(0.15);
+            } else {
+                robot.lift.servoBucket.setPosition(0.47);
+            }
+
+            // to improbe scale each sensitivity on trigger scale 0.1-1 of right trigger to position of servo .
+
         }
+
     }
 }
-
