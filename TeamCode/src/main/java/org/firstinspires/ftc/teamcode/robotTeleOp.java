@@ -13,7 +13,7 @@ public class robotTeleOp extends OpMode {
     public void init() {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
-        robot = new RobotHardware(hardwareMap, false, false, true, false);       // Tell the driver that initialization is complete.
+        robot = new RobotHardware(hardwareMap, true, true, true, true);       // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
     }
 
@@ -31,6 +31,8 @@ public class robotTeleOp extends OpMode {
         liftControl();
         hangControl();
         manualControl();
+        bucketControl();
+        launchControl();
 //        airplaneLaunch();
     }
 
@@ -38,7 +40,7 @@ public class robotTeleOp extends OpMode {
         double scale = 0.3;
         if (gamepad1.left_bumper) {
             gamepad1.rumble(500);
-            scale = 0.8;
+            scale = 0.7;
         } else if (gamepad1.left_trigger > 0.5) {
             scale = 0.1;
         }
@@ -55,36 +57,40 @@ public class robotTeleOp extends OpMode {
             robot.Intake();
         }
         if (gamepad1.b) {
-            robot.Low();
-        }
-        if (gamepad1.x) {
-            robot.Medium();
-        }
-        if (gamepad1.y) {
-            robot.High();
-        }
-        if (gamepad1.left_bumper && gamepad1.right_bumper) {
             robot.Hover();
         }
-        if(robot.currentState != RobotHardware.States.INTAKE){
-            robot.lift.motorIntakeHighSpeed.setPower(0);
-            robot.lift.servoIntake.setPosition(robot.lift.SERVO_INTAKE_HOVER_POS);
+        if (gamepad1.x) {
+            robot.Low();
+        }
+        if (gamepad1.y) {
+            robot.Medium();
+        }
+
+//        if(robot.currentState != RobotHardware.States.INTAKE){
+//            robot.lift.motorIntakeHighSpeed.setPower(0);
+//            robot.lift.servoIntake.setPosition(robot.lift.SERVO_INTAKE_HOVER_POS);
+//        }
+    }
+
+    private void bucketControl() {
+        if ( gamepad1.right_trigger > 0.3) {
+            robot.lift.servoBucket.setPosition(robot.lift.SERVO_BUCKET_OUTAKE_POS);
+        } else {
+            robot.lift.servoBucket.setPosition(robot.lift.SERVO_BUCKET_INIT_POS);
+        }
+    }
+
+    private void launchControl() {
+        if (gamepad1.dpad_right) {
+            robot.lift.servoLauncher.setPosition(robot.lift.SERVO_LAUNCHER_LAUNCH_POS);
         }
     }
 
     private void manualControl() {
-        if (gamepad1.dpad_left) {
-            robot.lift.servoIntake.setPosition(0);
-        }
-        if (gamepad1.dpad_right) {
-            robot.lift.servoIntake.setPosition(0.25);
-        }
-        if (gamepad1.dpad_up) {
-            robot.lift.servoIntake.setPosition(0.5);
-        }
-        if (gamepad1.dpad_down)
-        {
-            robot.lift.servoIntake.setPosition(0.75);
+        if (gamepad1.right_bumper) {
+            robot.lift.servoIntake.setPosition(robot.lift.SERVO_INTAKE_JAM_POS);
+        } else {
+            robot.lift.servoIntake.setPosition(robot.lift.SERVO_INTAKE_REG_POS);
         }
     }
     private void hangControl(){

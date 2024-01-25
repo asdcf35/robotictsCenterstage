@@ -73,10 +73,10 @@ public class RobotHardware {
     // servo
 
     public int LIFT_INTAKE_POS = 0;
-    public int LIFT_HOVER_POS = 125;
-    public int LIFT_LOW_POS = 250;
-    public int LIFT_MEDIUM_POS = 500;
-    public int LIFT_HIGH_POS = 1000;
+    public int LIFT_HOVER_POS = 0;
+    public int LIFT_LOW_POS = 2350;
+    public int LIFT_MEDIUM_POS = 3350;
+    public int LIFT_HIGH_POS = 2000;
 
 
     // Robot states
@@ -97,28 +97,29 @@ public class RobotHardware {
         public Servo servoIntake;
         public Servo servoLauncher;
         public Servo servoBucket;
+//
+//        public int LIFT_HIGH_POS = 3100;
+//        public int LIFT_MID_POS = 4500;
+//        public int LIFT_LOW_POS = 2350;
+//        public int LIFT_HOVER_POS = 100;
+//        public int LIFT_INTAKE_POS = 0;
 
-        public int LIFT_HIGH_POS = 3100;
-        public int LIFT_MID_POS = 2150;
-        public int LIFT_LOW_POS = 1250;
-        public int LIFT_HOVER_POS = 100;
-        public int LIFT_INTAKE_POS = 0;
+        public double INTAKE_HS_POWER = 0.7;
 
-        public double INTAKE_HS_POWER = 0;
+        public double INTAKE_LS_POWER = 0.7;
 
-        public double INTAKE_LS_POWER = 0;
-
-        public double SERVO_INTAKE_INIT_POS = 0.8; //0.8
-        public double SERVO_INTAKE_REG_POS = 0.3;
-        public double SERVO_INTAKE_STACK_POS = 0;
-        public double SERVO_INTAKE_HOVER_POS = 0;
+        public double SERVO_INTAKE_INIT_POS = 0.8;
+        public double SERVO_INTAKE_REG_POS = 0.29;
+        public double SERVO_INTAKE_STACK_POS = 5;
+        public double SERVO_INTAKE_HOVER_POS = 0.35;
+        public double SERVO_INTAKE_JAM_POS = 0.265;
 
         public double SERVO_LAUNCHER_INT_POS = 0.25;
         public double SERVO_LAUNCHER_LAUNCH_POS = 0.75;
 
         public double SERVO_BUCKET_INIT_POS = 0.47;
-        public double SERVO_BUCKET_INTAKE_POS = 0;
-        public double SERVO_BUCKET_OUTAKE_POS = 0;
+        public double SERVO_BUCKET_INTAKE_POS = 0.47;
+        public double SERVO_BUCKET_OUTAKE_POS = 0.15;
 
         public Lift(HardwareMap hardwareMap) {
             motorIntakeHighSpeed = hardwareMap.get(DcMotor.class, "intakeHS");
@@ -134,13 +135,13 @@ public class RobotHardware {
             motorIntakeLowSpeed.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
             motorLift = hardwareMap.get(DcMotor.class, "motorLift");
-            motorLift.setDirection(DcMotorSimple.Direction.FORWARD);
+            motorLift.setDirection(DcMotorSimple.Direction.REVERSE);
             motorLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             motorLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             motorLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
             servoIntake = hardwareMap.get(Servo.class, "servoIntake");
-            servoIntake.setPosition(SERVO_INTAKE_REG_POS);
+            servoIntake.setPosition(SERVO_INTAKE_INIT_POS);
 
             servoLauncher = hardwareMap.get(Servo.class, "servoLauncher");
             servoLauncher.setPosition(SERVO_LAUNCHER_INT_POS);
@@ -158,10 +159,10 @@ public class RobotHardware {
 
 
         public DriveTrain(HardwareMap hardwareMap) {
-            motorFL = hardwareMap.get(DcMotor.class, "leftFront");
-            motorFR = hardwareMap.get(DcMotor.class, "rightFront");
-            motorBL = hardwareMap.get(DcMotor.class, "leftRear");
-            motorBR = hardwareMap.get(DcMotor.class, "rightRear");
+            motorFL = hardwareMap.get(DcMotor.class, "FLmotor");
+            motorFR = hardwareMap.get(DcMotor.class, "FRmotor");
+            motorBL = hardwareMap.get(DcMotor.class, "BLmotor");
+            motorBR = hardwareMap.get(DcMotor.class, "BRmotor");
             motors = new DcMotor[]{motorFL, motorFR, motorBL, motorBR};
 
 
@@ -219,45 +220,51 @@ public class RobotHardware {
         telemetry.addData("FR pos", driveTrain.motorFR.getCurrentPosition());
         telemetry.addData("FL pos", driveTrain.motorFL.getCurrentPosition());
         telemetry.addData("motorLift pos", lift.motorLift.getCurrentPosition());
-        telemetry.addData("motorHang pos", lift.motorHang.getCurrentPosition());
+        //telemetry.addData("motorHang pos", lift.motorHang.getCurrentPosition());
     }
 
 
     public void Intake() {
+        lift.motorLift.setTargetPosition(LIFT_INTAKE_POS);
+        lift.motorLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        lift.motorLift.setPower(0.8);
         lift.motorIntakeHighSpeed.setPower(lift.INTAKE_HS_POWER);
         lift.motorIntakeLowSpeed.setPower(lift.INTAKE_LS_POWER);
-//        lift.servoIntake.setPosition(lift.SERVO_INTAKE_REG_POS);
+        lift.servoIntake.setPosition(lift.SERVO_INTAKE_REG_POS);
         currentState = States.INTAKE;
     }
 
     public void Hover() {
-        lift.motorLift.setTargetPosition(LIFT_INTAKE_POS);
-        lift.motorLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        lift.motorLift.setPower(0.4);
+        lift.motorIntakeHighSpeed.setPower(0);
+        lift.motorIntakeLowSpeed.setPower(0);
+
         currentState = States.HOVER;
     }
 
     public void Low() {
         lift.motorLift.setTargetPosition(LIFT_LOW_POS);
         lift.motorLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        lift.motorLift.setPower(0.4);
-        // servo low pos
+        lift.motorLift.setPower(-0.8);
+        lift.motorIntakeHighSpeed.setPower(0);
+        lift.motorIntakeLowSpeed.setPower(0);
         currentState = RobotHardware.States.LOW;
     }
 
     public void Medium() {
         lift.motorLift.setTargetPosition(LIFT_MEDIUM_POS);
         lift.motorLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        lift.motorLift.setPower(0.4);
-        // servo low pos
+        lift.motorLift.setPower(0.5);
+        lift.motorIntakeHighSpeed.setPower(0);
+        lift.motorIntakeLowSpeed.setPower(0);
         currentState = RobotHardware.States.MEDIUM;
     }
 
     public void High() {
         lift.motorLift.setTargetPosition(-LIFT_HIGH_POS);
         lift.motorLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        lift.motorLift.setPower(0.4);
-        // servo low pos
+        lift.motorLift.setPower(0.5);
+        lift.motorIntakeHighSpeed.setPower(0);
+        lift.motorIntakeLowSpeed.setPower(0);
         currentState = RobotHardware.States.HIGH;
     }
 

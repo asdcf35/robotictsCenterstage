@@ -56,7 +56,7 @@ public class test extends LinearOpMode {
                 robot.lift.servoBucket.setPosition(0.47);
             }
 
-            // to improbe scale each sensitivity on trigger scale 0.1-1 of right trigger to position of servo .
+            // to improve scale each sensitivity on trigger scale 0.1-1 of right trigger to position of servo .
 
         }
 
