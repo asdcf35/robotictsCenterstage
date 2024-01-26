@@ -68,11 +68,11 @@ public class SkystoneDetector extends OpenCvPipeline {
             telemetry.addData("Centerstage Location","middle");
         }
         else if(spikeLeft){
-            location = Location.RIGHT;
+            location = Location.LEFT;
             telemetry.addData("Centerstage Location", "right");
         }
         else if(spikeRight){
-            location = Location.LEFT;
+            location = Location.RIGHT;
             telemetry.addData("Centerstage Location", "left");
         }
         else{
@@ -84,10 +84,10 @@ public class SkystoneDetector extends OpenCvPipeline {
         Imgproc.cvtColor(mat, mat, Imgproc.COLOR_GRAY2RGB);
         telemetry.update();
 
-        Imgproc.cvtColor(mat, mat, Imgproc.COLOR_GRAY2RGB);
+        Imgproc.cvtColor(mat, mat,  Imgproc.COLOR_GRAY2RGB);
 
         Scalar colorStone = new Scalar(255, 0, 0);
-        Scalar colorSkystone = new Scalar(255, 0, 0);
+        Scalar colorSkystone = new Scalar(0, 255, 0);
         Imgproc.rectangle(mat, LEFT_ROI, location == Location.LEFT? colorSkystone:colorStone);
         Imgproc.rectangle(mat, RIGHT_ROI, location == Location.RIGHT? colorSkystone:colorStone);
         Imgproc.rectangle(mat, MIDDLE_ROI, location == Location.MIDDLE? colorSkystone:colorStone);

@@ -20,6 +20,7 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.teamcode.newDir.SkystoneDetector;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
@@ -29,30 +30,25 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import org.openftc.easyopencv.OpenCvCamera;
+import org.openftc.easyopencv.OpenCvCameraFactory;
+import org.openftc.easyopencv.OpenCvCameraRotation;
+import org.openftc.easyopencv.OpenCvInternalCamera;
+import org.openftc.easyopencv.OpenCvWebcam;
 
 
 public class AutoCommon extends LinearOpMode {
 
     protected RobotHardware robot;
 
-// Create the AprilTag processor and assign it to a variable.
-    AprilTagProcessor myAprilTagProcessor = AprilTagProcessor.easyCreateWithDefaults();
-
-// Create a VisionPortal, with the specified camera and AprilTag processor, and assign it to a variable.
-    VisionPortal myVisionPortal = VisionPortal.easyCreateWithDefaults(hardwareMap.get(WebcamName.class, "Webcam 1"), myAprilTagProcessor);
-
-
-
     @Override
     public void runOpMode() {
+
         telemetry.addData("Status", "Initializing...");
         telemetry.update();
 
         robot = new RobotHardware(hardwareMap, true, true, true, true);
         initialHeading = getHeading();
-
-        telemetry.addData("Status", "Waiting for Vuforia...");
-        telemetry.update();
 
         telemetry.addData("Status", "Initialized");
         telemetry.update();

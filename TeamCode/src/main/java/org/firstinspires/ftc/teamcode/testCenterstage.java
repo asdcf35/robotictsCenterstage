@@ -1,18 +1,10 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.PwmControl;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Servo;
-
-import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
 @TeleOp(name = "Intake Test", group = "TeleOp")
-public class test extends LinearOpMode {
+public class testCenterstage extends LinearOpMode {
     private RobotHardware robot;
     @Override
     public void runOpMode() {
@@ -25,7 +17,7 @@ public class test extends LinearOpMode {
             if (gamepad1.right_bumper) {
                 robot.lift.servoIntake.setPosition(0.28);
             } else {
-                robot.lift.servoIntake.setPosition(robot.lift.SERVO_INTAKE_REG_POS );
+                robot.lift.servoIntake.setPosition(robot.lift.SERVO_INTAKE_REG_POS);
             }
 
             if (gamepad1.a) {
