@@ -29,4 +29,20 @@ public class camera extends AutoCommon {
         driveOnHeading(10,0.5,90);
 
     }
+    private void left(){
+        driveOnHeading(36,0.3,0);
+        turnToHeading(90,0.5);
+        driveOnHeading(12,0.3,0);
+        //dump
+        robot.lift.servoBucket.setPosition(robot.lift.SERVO_BUCKET_OUTAKE_POS);
+        driveOnHeading(-12,0.3,0);
+        //retracting
+        robot.lift.servoBucket.setPosition(robot.lift.SERVO_BUCKET_INIT_POS);
+        turnToHeading(-90,0.5);
+        driveOnHeading(24,0.3,0);
+        turnToHeading(-90,0.5);
+        driveOnHeading(90,0.3,0);
+        strafeOnHeading(12,0.3,0);
+        
+    }
 }
