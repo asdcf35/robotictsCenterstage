@@ -103,7 +103,7 @@ public class RobotHardware {
 
         public double INTAKE_LS_POWER = 0.9;
 
-        public double SERVO_INTAKE_INIT_POS = 0.8;
+        public double SERVO_INTAKE_INIT_POS = 0.87;
         public double SERVO_INTAKE_REG_POS = 0.29;
         public double SERVO_INTAKE_STACK_POS = 5;
         public double SERVO_INTAKE_HOVER_POS = 0.35;

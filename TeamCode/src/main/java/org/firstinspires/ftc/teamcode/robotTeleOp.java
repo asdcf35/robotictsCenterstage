@@ -38,12 +38,12 @@ public class robotTeleOp extends OpMode {
     }
 
     private void driveControl() {
-        double scale = 0.5;
+        double scale = 0.4;
         if (gamepad1.left_bumper) {
             gamepad1.rumble(500);
-            scale = 0.8;
+            scale = 0.7;
         } else if (gamepad1.left_trigger > 0.5) {
-            scale = 0.2;
+            scale = 0.3;
         }
         double drive = gamepad1.left_stick_y;
         double strafe = -gamepad1.left_stick_x;
