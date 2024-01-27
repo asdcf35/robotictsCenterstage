@@ -45,9 +45,9 @@ public class robotTeleOp extends OpMode {
         } else if (gamepad1.left_trigger > 0.5) {
             scale = 0.3;
         }
-        double drive = gamepad1.left_stick_y;
-        double strafe = -gamepad1.left_stick_x;
-        double turn = -gamepad1.right_stick_x;
+        double drive = -gamepad1.left_stick_y;
+        double strafe = gamepad1.left_stick_x;
+        double turn = gamepad1.right_stick_x;
         robot.driveTrain.startMove(drive, strafe, turn, scale);
         robot.telemetryUpdate(telemetry);
 

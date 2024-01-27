@@ -161,10 +161,10 @@ public class RobotHardware {
             motors = new DcMotor[]{motorFL, motorFR, motorBL, motorBR};
 
 
-            motorFL.setDirection(DcMotorSimple.Direction.FORWARD);
-            motorBL.setDirection(DcMotorSimple.Direction.FORWARD);
-            motorFR.setDirection(DcMotorSimple.Direction.REVERSE);
-            motorBR.setDirection(DcMotorSimple.Direction.REVERSE);
+            motorFL.setDirection(DcMotorSimple.Direction.REVERSE);
+            motorBL.setDirection(DcMotorSimple.Direction.REVERSE);
+            motorFR.setDirection(DcMotorSimple.Direction.FORWARD);
+            motorBR.setDirection(DcMotorSimple.Direction.FORWARD);
 
             for (DcMotor motor : motors) {
                 motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
