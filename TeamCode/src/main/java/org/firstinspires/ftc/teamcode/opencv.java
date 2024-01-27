@@ -28,9 +28,9 @@ enum States {
 
 public class opencv extends LinearOpMode {
 
-    double cX = 0;
-    double cY = 0;
-    double width = 0;
+    public double cX = 0;
+    public double cY = 0;
+    public double width = 0;
 
     private OpenCvCamera controlHubCam;  // Use OpenCvCamera class from FTC SDK
     private static final int CAMERA_WIDTH = 640; // width  of wanted camera resolution
@@ -39,11 +39,11 @@ public class opencv extends LinearOpMode {
     // Calculate the distance using the formula
     public static final double objectWidthInRealWorldUnits = 3.75;  // Replace with the actual width of the object in real-world units
     public static final double focalLength = 728;  // Replace with the focal length of the camera in pixels
+    public static int pos = 3;
 
 
     @Override
     public void runOpMode() {
-
         initOpenCV();
         FtcDashboard dashboard = FtcDashboard.getInstance();
         telemetry = new MultipleTelemetry(telemetry, dashboard.getTelemetry());
@@ -57,11 +57,15 @@ public class opencv extends LinearOpMode {
             telemetry.addData("Distance in Inch", (getDistance(width)));
 
             int error = 30;
+
             if(cX <= 227+error && cX >= 227-error) {
+                pos = 2;
                 telemetry.addData("Location: ", "Middle");
             } else if (cX<=60+error && cX>= 60-error) {
+                pos = 3;
                 telemetry.addData("Location", "left");
             } else {
+                pos = 1;
                 telemetry.addData("Location:", "Right");
             }
 
@@ -142,8 +146,8 @@ public class opencv extends LinearOpMode {
 
             return input;
         }
-        private void ifBlue(boolean yes){
-            if(yes){
+        private void ifBlue(boolean blue){
+            if(blue){
                 lowerH = 201;
                 lowerS = 100;
                 lowerV = 100;
@@ -198,7 +202,7 @@ public class opencv extends LinearOpMode {
         }
 
     }
-    private static double getDistance(double width){
+    public static double getDistance(double width){
         double distance = (objectWidthInRealWorldUnits * focalLength) / width;
         return distance;
     }

@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import static org.firstinspires.ftc.teamcode.opencv.getDistance;
+
 import android.graphics.Bitmap;
 import android.os.Environment;
 
@@ -57,6 +59,17 @@ public class AutoCommon extends LinearOpMode {
 
         telemetry.addData("Status", "Running");
         telemetry.update();
+
+        waitForStart();
+
+        while (opModeIsActive()) {
+
+            int error = 30;
+
+            telemetry.update();
+
+            // The OpenCV pipeline automatically processes frames and handles detection
+        }
     }
 
     private double inchesToTicks(double inches) {
@@ -172,35 +185,33 @@ public class AutoCommon extends LinearOpMode {
         }
         robot.driveTrain.stopMove();
     }
-    private File getOutputMediaFile() {
-        File mediaStorageDir = new File(Environment.getExternalStorageDirectory()
-                + "/Android/data"
-                + "/org.firstinspires.ftc.trialnerror"
-                + "/Files");
 
-        if (!mediaStorageDir.exists()) {
-            if (!mediaStorageDir.mkdir()) {
-                System.out.println("VUFORIA: unable to save the file to: " + mediaStorageDir.toString());
-                return null;
-            }
-        }
-
-        String timeStamp = new SimpleDateFormat("ddMMyyy_HHmm").format(new Date());
-        File mediaFile;
-        String mImageName = "MI_" + timeStamp + ".png";
-        mediaFile = new File(mediaStorageDir.getPath() + File.separator + mImageName);
-        return mediaFile;
+    protected void spikeDump() {
+        robot.lift.motorLift.setTargetPosition(robot.lift.LIFT_HOVER_POS);
+        robot.lift.motorLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.lift.motorLift.setPower(1);
+        sleep(500);
+        robot.lift.servoBucket.setPosition(robot.lift.SERVO_BUCKET_OUTAKE_POS);
+        sleep(1000);
+        robot.lift.servoBucket.setPosition(robot.lift.SERVO_BUCKET_INIT_POS);
+        robot.lift.motorLift.setTargetPosition(robot.lift.LIFT_INTAKE_POS);
+        robot.lift.motorLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.lift.motorLift.setPower(1);
+        sleep(500);
     }
-//        robot.servoClawPivot.setPosition(robot.CLAW_PIVOT_SKYSTONE_APPROACH_POS);
-//    moveArmDown();
-//        robot.servoClaw.setPosition(robot.CLAW_OPEN_POS);
-//        if (skystonePos == 1) {
-//        driveOnHeading(5, 0.3, 0);
-//    } else if (skystonePos == 2) {
-//        driveOnHeading(-1, 0.3, 0);
-//    } else {
-//        driveOnHeading(-9, 0.3, 0);
-//    }
-//    turnToHeading(-90, 0.3);
+
+    protected void liftPos(int height) {
+        robot.lift.motorLift.setTargetPosition(height);
+        robot.lift.motorLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.lift.motorLift.setPower(1);
+        sleep(2000);
+
+    }
+
+    protected void dump() {
+        robot.lift.servoBucket.setPosition(robot.lift.SERVO_BUCKET_OUTAKE_POS);
+        sleep(1000);
+        robot.lift.servoBucket.setPosition(robot.lift.SERVO_BUCKET_INTAKE_POS);
+    }
 
 }

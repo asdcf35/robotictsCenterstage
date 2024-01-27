@@ -33,16 +33,17 @@ public class robotTeleOp extends OpMode {
         manualControl();
         bucketControl();
         launchControl();
+        intakeControl();
 //        airplaneLaunch();
     }
 
     private void driveControl() {
-        double scale = 0.3;
+        double scale = 0.5;
         if (gamepad1.left_bumper) {
             gamepad1.rumble(500);
-            scale = 0.7;
+            scale = 0.8;
         } else if (gamepad1.left_trigger > 0.5) {
-            scale = 0.1;
+            scale = 0.2;
         }
         double drive = gamepad1.left_stick_y;
         double strafe = -gamepad1.left_stick_x;
@@ -73,7 +74,7 @@ public class robotTeleOp extends OpMode {
     }
 
     private void bucketControl() {
-        if ( gamepad1.right_trigger > 0.3) {
+        if ( gamepad1.right_trigger > 0.3 && robot.lift.motorLift.getCurrentPosition() > 50) {
             robot.lift.servoBucket.setPosition(robot.lift.SERVO_BUCKET_OUTAKE_POS);
         } else {
             robot.lift.servoBucket.setPosition(robot.lift.SERVO_BUCKET_INIT_POS);
@@ -92,9 +93,27 @@ public class robotTeleOp extends OpMode {
         } else {
             robot.lift.servoIntake.setPosition(robot.lift.SERVO_INTAKE_REG_POS);
         }
+//        if(gamepad1.dpad_left) {
+//            robot.lift.motorIntakeHighSpeed.setPower(-robot.lift.INTAKE_HS_POWER);
+//            robot.lift.motorIntakeLowSpeed.setPower(-robot.lift.INTAKE_LS_POWER);
+//        }
     }
     private void hangControl(){
     }
+
+    private void intakeControl() {
+        if (gamepad1.a) {
+            robot.lift.motorIntakeHighSpeed.setPower(robot.lift.INTAKE_HS_POWER);
+            robot.lift.motorIntakeLowSpeed.setPower(robot.lift.INTAKE_LS_POWER);
+        } else if (gamepad1.b) {
+            robot.lift.motorIntakeHighSpeed.setPower(0);
+            robot.lift.motorIntakeLowSpeed.setPower(0);
+        } else if (gamepad1.dpad_left) {
+            robot.lift.motorIntakeHighSpeed.setPower(-robot.lift.INTAKE_HS_POWER);
+            robot.lift.motorIntakeLowSpeed.setPower(-robot.lift.INTAKE_LS_POWER);
+        }
+    }
+
 //    private void airplaneLaunch() {
 //        if (gamepad1.dpad_right) {
 //            robot.airplane.launch();
