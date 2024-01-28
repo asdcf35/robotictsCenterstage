@@ -1,47 +1,182 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.opencv.core.Core;
+import org.opencv.core.Mat;
+import org.opencv.core.MatOfPoint;
+import org.opencv.core.Point;
+import org.opencv.core.Rect;
+import org.opencv.core.Scalar;
+import org.opencv.core.Size;
+import org.opencv.imgproc.Imgproc;
+import org.opencv.imgproc.Moments;
+import org.openftc.easyopencv.OpenCvCamera;
+import org.openftc.easyopencv.OpenCvCameraFactory;
+import org.openftc.easyopencv.OpenCvCameraRotation;
+import org.openftc.easyopencv.OpenCvPipeline;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Autonomous(group = "drive")
 public class redAllianceCamera extends AutoCommon {
+
+    double cX = 0;
+    double cY = 0;
+    double width = 0;
+
+    private OpenCvCamera controlHubCam;  // Use OpenCvCamera class from FTC SDK
+    private static final int CAMERA_WIDTH = 640; // width  of wanted camera resolution
+    private static final int CAMERA_HEIGHT = 360; // height of wanted camera resolution
+
+    // Calculate the distance using the formula
+    public static final double objectWidthInRealWorldUnits = 3.75;  // Replace with the actual width of the object in real-world units
+    public static final double focalLength = 728;  // Replace with the focal length of the camera in pixels
+
+    int error = 50;
     @Override
     public void runOpMode() {
         super.runOpMode();
+        initOpenCV();
+        FtcDashboard dashboard = FtcDashboard.getInstance();
+        telemetry = new MultipleTelemetry(telemetry, dashboard.getTelemetry());
+        FtcDashboard.getInstance().startCameraStream(controlHubCam, 30);
+
+
         waitForStart();
-//        driveOnHeading(10,1,0);
-        if(currentSpikePos == SpikePosition.CENTER){
-            telemetry.addData("Location(got from redAllianceCamera): ", "Center");
+
+        while (opModeIsActive()) {
+            telemetry.addData("Coordinate", "(" + (int) cX + ", " + (int) cY + ")");
+            telemetry.addData("Distance in Inch", (getDistance(width)));
+            if(cX <= 227+error && cX >= 227-error) { //change 227 to the cX value when piece is in center
+                telemetry.addData("Location: ", "Center");
+                center();
+            } else if (cX<=60+error && cX>= 60-error) {//change 60 to the cX value when piece is in center
+                telemetry.addData("Location", "Right");
+                right();
+            } else {
+                telemetry.addData("Location:", "Left");
+                left();
+            }
+            telemetry.update();
+            // The OpenCV pipeline automatically processes frames and handles detection
         }
-        else if(currentSpikePos == SpikePosition.LEFT){
-            telemetry.addData("Location(got from redAllianceCamera): ", "Left");
-        }
-        else if(currentSpikePos == SpikePosition.RIGHT){
-            telemetry.addData("Location(got from redAllianceCamera): ", "Right");
-        }
-        else{
-            telemetry.addLine("RedAllianceCamera opmode doesn't get any spike position from robot hardware");
-        }
-        telemetry.update();
+        // Release resources
+        controlHubCam.stopStreaming();
     }
 
-    //positive -> right
-    //negative -> left
-//    private void middle(){
-//        telemetry.addLine("Middle Spike Mark Autonomous");
-//        driveOnHeading(46,0.3,0);
-//        spikeDump();
-////        robot.turnOnIntake();
-////        driveOnHeading(40,0.5,0);
-////        turnToHeading(90, 0.5);
-////        driveOnHeading(72,0.3,90);
-////        strafeOnHeading(-35, 0.5,90);
-////        liftPos(robot.lift.LIFT_LOW_POS);
-////        driveOnHeading(15,0.3,90);
-////        sleep(1000);
-////        dump();
-////        liftPos(robot.lift.LIFT_INTAKE_POS);
-////        strafeOnHeading(50,1,90);
-////        driveOnHeading(10,0.5,90);
-//
-//    }
+    private void center(){
+        telemetry.addLine("Center is working");
+    }
+    private void right(){
+        telemetry.addLine("Right is working");
+    }
+    private void left(){
+        telemetry.addLine("left is working");
+    }
+    private void initOpenCV() {
+
+        // Create an instance of the camera
+        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
+                "cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+
+        // Use OpenCvCameraFactory class from FTC SDK to create camera instance
+        controlHubCam = OpenCvCameraFactory.getInstance().createWebcam(
+                hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+
+        controlHubCam.setPipeline(new YellowBlobDetectionPipeline());
+
+        controlHubCam.openCameraDevice();
+        controlHubCam.startStreaming(CAMERA_WIDTH, CAMERA_HEIGHT, OpenCvCameraRotation.UPRIGHT);
+    }
+    class YellowBlobDetectionPipeline extends OpenCvPipeline {
+        @Override
+        public Mat processFrame(Mat input) {
+            // Preprocess the frame to detect yellow regions
+            Mat yellowMask = preprocessFrame(input);
+
+            // Find contours of the detected yellow regions
+            List<MatOfPoint> contours = new ArrayList<>();
+            Mat hierarchy = new Mat();
+            Imgproc.findContours(yellowMask, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+
+            // Find the largest yellow contour (blob)
+            MatOfPoint largestContour = findLargestContour(contours);
+
+            if (largestContour != null) {
+                // Draw a red outline around the largest detected object
+                Imgproc.drawContours(input, contours, contours.indexOf(largestContour), new Scalar(255, 0, 0), 2);
+                // Calculate the width of the bounding box
+                width = calculateWidth(largestContour);
+
+                // Display the width next to the label
+                String widthLabel = "Width: " + (int) width + " pixels";
+                Imgproc.putText(input, widthLabel, new Point(cX + 10, cY + 20), Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, new Scalar(0, 255, 0), 2);
+                //Display the Distance
+                String distanceLabel = "Distance: " + String.format("%.2f", getDistance(width)) + " inches";
+                Imgproc.putText(input, distanceLabel, new Point(cX + 10, cY + 60), Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, new Scalar(0, 255, 0), 2);
+                // Calculate the centroid of the largest contour
+                Moments moments = Imgproc.moments(largestContour);
+                cX = moments.get_m10() / moments.get_m00();
+                cY = moments.get_m01() / moments.get_m00();
+
+                // Draw a dot at the centroid
+                String label = "(" + (int) cX + ", " + (int) cY + ")";
+                Imgproc.putText(input, label, new Point(cX + 10, cY), Imgproc.FONT_HERSHEY_COMPLEX, 0.5, new Scalar(0, 255, 0), 2);
+                Imgproc.circle(input, new Point(cX, cY), 5, new Scalar(0, 255, 0), -1);
+
+            }
+
+            return input;
+        }
+
+        private Mat preprocessFrame(Mat frame) {
+            Mat hsvFrame = new Mat();
+            Imgproc.cvtColor(frame, hsvFrame, Imgproc.COLOR_BGR2HSV);
+
+            Scalar lowerYellow = new Scalar(100, 100, 100);
+            Scalar upperYellow = new Scalar(180, 255, 255);
+
+
+            Mat yellowMask = new Mat();
+            Core.inRange(hsvFrame, lowerYellow, upperYellow, yellowMask);
+
+            Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5, 5));
+            Imgproc.morphologyEx(yellowMask, yellowMask, Imgproc.MORPH_OPEN, kernel);
+            Imgproc.morphologyEx(yellowMask, yellowMask, Imgproc.MORPH_CLOSE, kernel);
+
+            return yellowMask;
+        }
+
+        private MatOfPoint findLargestContour(List<MatOfPoint> contours) {
+            double maxArea = 0;
+            MatOfPoint largestContour = null;
+
+            for (MatOfPoint contour : contours) {
+                double area = Imgproc.contourArea(contour);
+                if (area > maxArea) {
+                    maxArea = area;
+                    largestContour = contour;
+                }
+            }
+
+            return largestContour;
+        }
+        private double calculateWidth(MatOfPoint contour) {
+            Rect boundingRect = Imgproc.boundingRect(contour);
+            return boundingRect.width;
+        }
+
+    }
+    private static double getDistance(double width){
+        double distance = (objectWidthInRealWorldUnits * focalLength) / width;
+        return distance;
+    }
+
+
 }
