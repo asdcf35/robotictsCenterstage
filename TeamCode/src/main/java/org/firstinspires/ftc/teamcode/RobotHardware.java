@@ -99,7 +99,7 @@ public class RobotHardware {
         public int LIFT_MEDIUM_POS = 3350;
         public int LIFT_HIGH_POS = 2000;
 
-        public double INTAKE_HS_POWER = 0.7;
+        public double INTAKE_HS_POWER = 0;
 
         public double INTAKE_LS_POWER = 0.9;
 

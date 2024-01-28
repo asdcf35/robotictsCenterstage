@@ -9,22 +9,17 @@ public class redAllianceCamera extends AutoCommon {
         super.runOpMode();
         waitForStart();
 //        driveOnHeading(10,1,0);
-        if(pos == 2) {
-            telemetry.addData("Location: ", "Middle");
-            driveOnHeading(46,0.3,0);
-            spikeDump();
-            sleep(100000);
-//            middle(); //middle spike mark
-        } else if (pos == 1) {
-            telemetry.addData("Location", "left");
-            sleep(100000);
-//            left();//left spike mark
-        } else {
-            telemetry.addData("Location:", "Right");
-            sleep(100000);
-//            right();//right spike mark
-            turnToHeading(90,0.2);
-//            driveOnHeading(5,1,90);
+        if(currentSpikePos == SpikePosition.CENTER){
+            telemetry.addData("Location(got from redAllianceCamera): ", "Center");
+        }
+        else if(currentSpikePos == SpikePosition.LEFT){
+            telemetry.addData("Location(got from redAllianceCamera): ", "Left");
+        }
+        else if(currentSpikePos == SpikePosition.RIGHT){
+            telemetry.addData("Location(got from redAllianceCamera): ", "Right");
+        }
+        else{
+            telemetry.addLine("RedAllianceCamera opmode doesn't get any spike position from robot hardware");
         }
         telemetry.update();
     }
