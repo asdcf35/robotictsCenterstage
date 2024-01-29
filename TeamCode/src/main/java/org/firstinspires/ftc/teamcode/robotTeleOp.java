@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 @TeleOp
 public class robotTeleOp extends OpMode {
@@ -99,6 +100,15 @@ public class robotTeleOp extends OpMode {
 //        }
     }
     private void hangControl(){
+        if(gamepad1.dpad_up){
+            robot.lift.motorHang.setPower(-1);
+        }
+        else if(gamepad1.dpad_down){
+            robot.lift.motorHang.setPower(1);
+        }
+        else{
+            robot.lift.motorHang.setPower(0);
+        }
     }
 
     private void intakeControl() {
@@ -114,7 +124,7 @@ public class robotTeleOp extends OpMode {
         }
     }
 
-//    private void airplaneLaunch() {
+//    private void airplaneLaunch() {  n
 //        if (gamepad1.dpad_right) {
 //            robot.airplane.launch();
 //        }
