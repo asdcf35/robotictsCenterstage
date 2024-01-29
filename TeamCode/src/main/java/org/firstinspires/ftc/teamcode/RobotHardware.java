@@ -23,6 +23,10 @@ public class RobotHardware {
     public static final double WHEEL_DIAMETER = 6.0;
     public static final double DRIVE_MOTOR_TICKS_PER_ROTATION = 385.5; //changing from 537.6
 
+    public static int HANG_ADJ_POS = 0;
+    private static final int HANG_INIT_POS = 0;
+    private static final int HANG_TOP_POS = -35000;
+    private static final int HANG_GRAB_POS = 250;
 
     private HardwareMap hardwareMap;
 
@@ -79,13 +83,10 @@ public class RobotHardware {
     enum States {
         INTAKE, HOVER, LOW, MEDIUM, HIGH,
 
-        HANG_INIT, HANG_TOP, HANG_GRAB,
+        HANG_INIT, HANG_TOP, HANG_GRAB, HANG_ADJ, HANG_ADJUST,
     }
 
     public class Lift {
-        private static final int HANG_INIT_POS = 0;
-        private static final int HANG_TOP_POS = 1000;
-        private static final int HANG_GRAB_POS = 250;
         public DcMotor motorLift;
         public DcMotor motorIntakeHighSpeed;
         public DcMotor motorIntakeLowSpeed;
@@ -96,10 +97,10 @@ public class RobotHardware {
         public int LIFT_INTAKE_POS = 0;
         public int LIFT_HOVER_POS = 100;
         public int LIFT_LOW_POS = 2350;
-        public int LIFT_MEDIUM_POS = 3350;
+        public int LIFT_MEDIUM_POS = 350;
         public int LIFT_HIGH_POS = 2000;
 
-        public double INTAKE_HS_POWER = 0;
+        public double INTAKE_HS_POWER = 0.8;
 
         public double INTAKE_LS_POWER = 0.9;
 
@@ -121,19 +122,25 @@ public class RobotHardware {
             motorIntakeHighSpeed.setDirection(DcMotorSimple.Direction.REVERSE);
             motorIntakeHighSpeed.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             motorIntakeHighSpeed.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            motorIntakeHighSpeed.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            motorIntakeHighSpeed.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
             motorIntakeLowSpeed = hardwareMap.get(DcMotor.class, "intakeLS");
             motorIntakeLowSpeed.setDirection(DcMotorSimple.Direction.REVERSE);
             motorIntakeLowSpeed.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             motorIntakeLowSpeed.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            motorIntakeLowSpeed.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            motorIntakeLowSpeed.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
             motorLift = hardwareMap.get(DcMotor.class, "motorLift");
             motorLift.setDirection(DcMotorSimple.Direction.REVERSE);
             motorLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             motorLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             motorLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            
+            motorHang = hardwareMap.get(DcMotor.class, "motorHang");
+            motorHang.setDirection(DcMotorSimple.Direction.REVERSE);
+            motorHang.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            motorHang.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            motorHang.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
             servoIntake = hardwareMap.get(Servo.class, "servoIntake");
             servoIntake.setPosition(SERVO_INTAKE_INIT_POS);
@@ -215,7 +222,7 @@ public class RobotHardware {
         telemetry.addData("FR pos", driveTrain.motorFR.getCurrentPosition());
         telemetry.addData("FL pos", driveTrain.motorFL.getCurrentPosition());
         telemetry.addData("motorLift pos", lift.motorLift.getCurrentPosition());
-        //telemetry.addData("motorHang pos", lift.motorHang.getCurrentPosition());
+        telemetry.addData("motorHang pos", lift.motorHang.getCurrentPosition());
     }
 
 
@@ -274,28 +281,36 @@ public class RobotHardware {
      * Hang Functions Belong Here
      * */
     public void HangInit() {
-        lift.motorLift.setTargetPosition(Lift.HANG_INIT_POS);
+        lift.motorLift.setTargetPosition(HANG_INIT_POS);
         lift.motorLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         lift.motorLift.setPower(0.4);
         currentState = States.INTAKE;
     }
 
     public void HangGrab() {
-        lift.motorLift.setTargetPosition(-Lift.HANG_INIT_POS);
+        lift.motorLift.setTargetPosition(-HANG_GRAB_POS);
         lift.motorLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         lift.motorLift.setPower(0.4);
         currentState = States.INTAKE;
     }
 
     public void HangTop() {
-        lift.motorHang.setTargetPosition(-Lift.HANG_INIT_POS);
+        lift.motorHang.setTargetPosition(-HANG_TOP_POS);
         lift.motorHang.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         lift.motorHang.setPower(-0.4);
         currentState = States.HANG_TOP;
     }
 
+    public void HangAdjust() {
+        lift.motorHang.setTargetPosition(-1000);
+        lift.motorHang.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        lift.motorHang.setPower(-1);
+        currentState = States.HANG_ADJUST;
+    }
+
+
     public void HangTopRev() {
-        lift.motorHang.setTargetPosition(Lift.HANG_INIT_POS);
+        lift.motorHang.setTargetPosition(HANG_INIT_POS);
         lift.motorHang.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         lift.motorHang.setPower(0.4);
         currentState = States.HANG_TOP;

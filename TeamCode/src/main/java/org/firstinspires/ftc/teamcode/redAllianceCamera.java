@@ -24,14 +24,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Autonomous(group = "drive")
-public class redAllianceCamera extends AutoCommon {
+public abstract class redAllianceCamera extends AutoCommon {
 
     double cX = 0;
     double cY = 0;
     double width = 0;
 
     private OpenCvCamera controlHubCam;  // Use OpenCvCamera class from FTC SDK
-    private static final int CAMERA_WIDTH = 640; // width  of wanted camera resolution
+    private static final int CAMERA_WIDTH = 640; // width of wanted camera resolution
     private static final int CAMERA_HEIGHT = 360; // height of wanted camera resolution
 
     // Calculate the distance using the formula
@@ -70,15 +70,11 @@ public class redAllianceCamera extends AutoCommon {
         controlHubCam.stopStreaming();
     }
 
-    private void center(){
-        telemetry.addLine("Center is working");
-    }
-    private void right(){
-        telemetry.addLine("Right is working");
-    }
-    private void left(){
-        telemetry.addLine("left is working");
-    }
+    public abstract void center();
+    public abstract void left();
+    public abstract void right();
+
+
     private void initOpenCV() {
 
         // Create an instance of the camera
@@ -93,6 +89,9 @@ public class redAllianceCamera extends AutoCommon {
 
         controlHubCam.openCameraDevice();
         controlHubCam.startStreaming(CAMERA_WIDTH, CAMERA_HEIGHT, OpenCvCameraRotation.UPRIGHT);
+    }
+    private void changePipelineToAprilTag(){
+
     }
     class YellowBlobDetectionPipeline extends OpenCvPipeline {
         @Override
