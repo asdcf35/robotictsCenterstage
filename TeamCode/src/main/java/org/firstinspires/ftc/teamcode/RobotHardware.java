@@ -100,14 +100,14 @@ public class RobotHardware {
         public int LIFT_MEDIUM_POS = 35;
         public int LIFT_HIGH_POS = 2000;
 
-        public double INTAKE_HS_POWER = 0.8;
-        public double INTAKE_LS_POWER = 0.9;
+        public double INTAKE_HS_POWER = 0.7;
+        public double INTAKE_LS_POWER = 0.5;
 
         public double SERVO_INTAKE_INIT_POS = 0.87;
         public double SERVO_INTAKE_REG_POS = 0.29;
         public double SERVO_INTAKE_STACK_POS = 5;
         public double SERVO_INTAKE_HOVER_POS = 0.35;
-        public double SERVO_INTAKE_JAM_POS = 0.265;
+        public double SERVO_INTAKE_JAM_POS = 0.25; //0.625
 
         public double SERVO_LAUNCHER_INT_POS = 0.25;
         public double SERVO_LAUNCHER_LAUNCH_POS = 0.75;
