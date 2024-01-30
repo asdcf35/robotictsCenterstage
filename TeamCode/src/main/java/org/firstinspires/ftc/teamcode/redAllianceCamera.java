@@ -39,6 +39,7 @@ public abstract class redAllianceCamera extends AutoCommon {
     public static final double focalLength = 728;  // Replace with the focal length of the camera in pixels
 
     int error = 50;
+
     @Override
     public void runOpMode() {
         super.runOpMode();
@@ -53,10 +54,10 @@ public abstract class redAllianceCamera extends AutoCommon {
         while (opModeIsActive()) {
             telemetry.addData("Coordinate", "(" + (int) cX + ", " + (int) cY + ")");
             telemetry.addData("Distance in Inch", (getDistance(width)));
-            if(cX <= 227+error && cX >= 227-error) { //change 227 to the cX value when piece is in center
+            if (cX <= 227 + error && cX >= 227 - error) { //change 227 to the cX value when piece is in center
                 telemetry.addData("Location: ", "Center");
                 center();
-            } else if (cX<=60+error && cX>= 60-error) {//change 60 to the cX value when piece is in center
+            } else if (cX <= 60 + error && cX >= 60 - error) {//change 60 to the cX value when piece is in center
                 telemetry.addData("Location", "Right");
                 right();
             } else {
@@ -70,10 +71,20 @@ public abstract class redAllianceCamera extends AutoCommon {
         controlHubCam.stopStreaming();
     }
 
-    public abstract void center();
-    public abstract void left();
-    public abstract void right();
+    public void center(){};
 
+    public void left(){};
+
+    public void right() {
+        driveOnHeading(22, 0.3, 90);
+        spikeDump();
+        strafeOnHeading(26, 0.3, 0);
+        driveOnHeading(14, 0.3, 0); //even it to the top of the mat piece
+        driveOnHeading(24 * 3, 0.3, 0);
+        strafeOnHeading(26, 0.3, 0);
+        driveOnHeading(12, 0.3, 0);
+
+    };
 
     private void initOpenCV() {
 
@@ -90,9 +101,7 @@ public abstract class redAllianceCamera extends AutoCommon {
         controlHubCam.openCameraDevice();
         controlHubCam.startStreaming(CAMERA_WIDTH, CAMERA_HEIGHT, OpenCvCameraRotation.UPRIGHT);
     }
-    private void changePipelineToAprilTag(){
 
-    }
     class YellowBlobDetectionPipeline extends OpenCvPipeline {
         @Override
         public Mat processFrame(Mat input) {
@@ -166,13 +175,15 @@ public abstract class redAllianceCamera extends AutoCommon {
 
             return largestContour;
         }
+
         private double calculateWidth(MatOfPoint contour) {
             Rect boundingRect = Imgproc.boundingRect(contour);
             return boundingRect.width;
         }
 
     }
-    private static double getDistance(double width){
+
+    private static double getDistance(double width) {
         double distance = (objectWidthInRealWorldUnits * focalLength) / width;
         return distance;
     }
