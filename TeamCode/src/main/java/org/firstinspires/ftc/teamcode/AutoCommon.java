@@ -60,7 +60,9 @@ public class AutoCommon extends LinearOpMode {
 
         telemetry.addData("Status", "Initializing...");
         telemetry.update();
-        initOpenCV();
+
+        cameraMagic();
+        telemetry.update();
 
         robot = new RobotHardware(hardwareMap, true, true, true, true);
         initialHeading = getHeading();
@@ -70,9 +72,6 @@ public class AutoCommon extends LinearOpMode {
         telemetry.addData("Status", "Initialized...");
         telemetry.update();
 
-        cameraMagic();
-        telemetry.update
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              ();
 
         waitForStart();
         telemetry.update();
@@ -87,6 +86,11 @@ public class AutoCommon extends LinearOpMode {
     private static final int CAMERA_WIDTH = 640; // width of wanted camera resolution
     private static final int CAMERA_HEIGHT = 360; // height of wanted camera resolution
 
+    private static int[][] ROIs = {
+            {122, 174, 340, 200},
+            {465, 141, 615, 184}
+    };
+
     // Calculate the distance using the formula
     //122:174
     //340:200
@@ -98,31 +102,34 @@ public class AutoCommon extends LinearOpMode {
     public static final double objectWidthInRealWorldUnits = 3.75;  // Replace with the actual width of the object in real-world units
     public static final double focalLength = 728;  // Replace with the focal length of the camera in pixels
 
-    int error = 50;
+    int error = 60;
     int pos = 1;
     public void cameraMagic() {
-//        initOpenCV();
+
         FtcDashboard dashboard = FtcDashboard.getInstance();
         telemetry = new MultipleTelemetry(telemetry, dashboard.getTelemetry());
         FtcDashboard.getInstance().startCameraStream(camera, 30);
+        initOpenCV();
 
-        telemetry.addData("Coordinate", "(" + (int) cX + ", " + (int) cY + ")");
-        telemetry.addData("Distance in Inch", (getDistance(width)));
-        if (cX <= 340 && cX >= 122 && cY >= 174 && cY <= 220) { //change 227 to the cX value when piece is in center
-            telemetry.addData("Location: ", "Center");
-            pos = 2;
-//                center();
-        } else if (cX <= 615 && cX >= 122 && cY >= 141 && cY <= 200) {//change 60 to the cX value when piece is in center
-            telemetry.addData("Location", "Right");
-//                right();
-            pos = 3;
-        } else {
-            telemetry.addData("Location:", "Left");
-//                left();
-            pos = 1;
+        while (opModeInInit()) {
+            telemetry.addData("Coordinate", "(" + (int) cX + ", " + (int) cY + ")");
+            telemetry.addData("Distance in Inch", (getDistance(width)));
+            if (cX <= 225+error && cX >= 225-error && cY <= 173+error && cY >= 173-error) { //change 227 to the cX value when piece is in center
+                telemetry.addData("Location: ", "Center");
+                pos = 2;
+                //                center();
+            } else if (cX <= 560+error && cX >= 560-error && cY <= 200+error && cY >= 200-error) {//change 60 to the cX value when piece is in center
+                telemetry.addData("Location", "Right");
+                //                right();
+                pos = 3;
+            } else {
+                telemetry.addData("Location:", "Left");
+                //                left();
+                pos = 1;
+            }
+            telemetry.update();
+            // The OpenCV pipeline automatically processes frames and handles detection
         }
-        telemetry.update();
-        // The OpenCV pipeline automatically processes frames and handles detection
     }
     private  void initOpenCV() {
 
@@ -152,10 +159,18 @@ public class AutoCommon extends LinearOpMode {
         camera.setPipeline(new YellowBlobDetectionPipeline());
     }
 
+    private Mat getROI(int x1, int y1, int x2, int y2) {
+        Mat frame = new Mat();
+        Rect roi = new Rect(x1, y1, x2, y2); // Define the ROI (x, y, width, height)
+        Mat roiFrame = new Mat(frame, roi);
+
+        return roiFrame;
+    }
+
     class YellowBlobDetectionPipeline extends OpenCvPipeline {
         @Override
         public Mat processFrame(Mat input) {
-            // Preprocess the frame to detect yellow regions
+            // Preprocess the frame to detect yellow region
             Mat yellowMask = preprocessFrame(input);
 
             // Find contours of the detected yellow regions
