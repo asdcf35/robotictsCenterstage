@@ -43,10 +43,10 @@ public class SkystoneDetector extends OpenCvPipeline {
 
             // Display the width next to the label
             String widthLabel = "Width: " + (int) width + " pixels";
-            Imgproc.putText(input, widthLabel, new Point(cX + 10, cY + 20), Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, new Scalar(0, 255, 0), 2);
+            Imgproc.putText(input, widthLabel, new Point(cX + 10, cY + 20), Imgproc.FONT_HERSHEY_SIMPLEX, 0.25, new Scalar(0, 255, 0), 2);
             //Display the Distance
             String distanceLabel = "Distance: " + String.format("%.2f", getDistance(width)) + " inches";
-            Imgproc.putText(input, distanceLabel, new Point(cX + 10, cY + 60), Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, new Scalar(0, 255, 0), 2);
+            Imgproc.putText(input, distanceLabel, new Point(cX + 10, cY + 60), Imgproc.FONT_HERSHEY_SIMPLEX, 0.25, new Scalar(0, 255, 0), 2);
             // Calculate the centroid of the largest contour
             Moments moments = Imgproc.moments(largestContour);
             cX = moments.get_m10() / moments.get_m00();
@@ -66,8 +66,8 @@ public class SkystoneDetector extends OpenCvPipeline {
         Mat hsvFrame = new Mat();
         Imgproc.cvtColor(frame, hsvFrame, Imgproc.COLOR_BGR2HSV);
 
-        Scalar lowerYellow = new Scalar(100, 100, 100);
-        Scalar upperYellow = new Scalar(180, 255, 255);
+        Scalar lowerYellow = new Scalar(180, 146, 130);
+        Scalar upperYellow = new Scalar(180, 177, 255);
 
 
         Mat yellowMask = new Mat();
