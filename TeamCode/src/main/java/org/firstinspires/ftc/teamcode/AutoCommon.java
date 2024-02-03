@@ -1,40 +1,19 @@
 package org.firstinspires.ftc.teamcode;
 
 
-import android.graphics.Bitmap;
-import android.os.Environment;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.DigitalChannel;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
-import com.qualcomm.robotcore.hardware.Gyroscope;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-import org.firstinspires.ftc.teamcode.newDir.SkystoneDetector;
-import org.firstinspires.ftc.vision.VisionPortal;
-import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.opencv.core.Core;
@@ -49,9 +28,114 @@ import org.opencv.imgproc.Moments;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
-import org.openftc.easyopencv.OpenCvInternalCamera;
 import org.openftc.easyopencv.OpenCvPipeline;
-import org.openftc.easyopencv.OpenCvWebcam;
+
+//public class AutoCommon extends LinearOpMode {
+//    protected RobotHardware robot;
+//
+//       public void runOpMode() {
+//
+//        telemetry.addData("Status", "Initializing...");
+//        telemetry.update();
+//
+//        cameraMagic();
+//        telemetry.update();
+//
+//        robot = new RobotHardware(hardwareMap, true, true, true, true);
+//        initialHeading = getHeading();
+//        telemetry.update();
+//
+//
+//        telemetry.addData("Status", "Initialized...");
+//        telemetry.update();
+//
+//
+//        waitForStart();
+//        telemetry.update();
+//
+//        // Release resources
+//    }
+//    double cX = 0;
+//    double cY = 0;
+//    double width = 0;
+//
+//    private OpenCvCamera camera;  // Use OpenCvCamera class from FTC SDK
+//    private static final int CAMERA_WIDTH = 640; // width of wanted camera resolution
+//    private static final int CAMERA_HEIGHT = 360; // height of wanted camera resolution
+//
+//    private static int[][] ROIs = {
+//            {122, 174, 340, 200},
+//            {465, 141, 615, 184}
+//    };
+//
+//    // Calculate the distance using the formula
+//    //122:174
+//    //340:200
+//
+//    //right
+//
+//    //465:141
+//    //615:184
+//    public static final double objectWidthInRealWorldUnits = 3.75;  // Replace with the actual width of the object in real-world units
+//    public static final double focalLength = 728;  // Replace with the focal length of the camera in pixels
+//
+//    int error = 60;
+//    int pos = 1;
+//    public void cameraMagic() {
+//
+//        FtcDashboard dashboard = FtcDashboard.getInstance();
+//        telemetry = new MultipleTelemetry(telemetry, dashboard.getTelemetry());
+//        FtcDashboard.getInstance().startCameraStream(camera, 30);
+//        initOpenCV();
+//
+//        while (opModeInInit()) {
+//            telemetry.addData("Coordinate", "(" + (int) cX + ", " + (int) cY + ")");
+//            telemetry.addData("Distance in Inch", (getDistance(width)));
+//
+//            telemetry.update();
+//            // The OpenCV pipeline automatically processes frames and handles detection
+//        }
+//    }
+//    private  void initOpenCV() {
+//
+//        // Create an instance of the camera
+//        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
+//                "cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+//
+//        // Use OpenCvCameraFactory class from FTC SDK to create camera instance
+//        camera = OpenCvCameraFactory.getInstance().createWebcam(
+//                hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+//
+//        camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
+//        {
+//            @Override
+//            public void onOpened()
+//            {
+//                camera.startStreaming(CAMERA_WIDTH, CAMERA_HEIGHT, OpenCvCameraRotation.UPRIGHT);
+//            }
+//            @Override
+//            public void onError(int errorCode)
+//            {
+//                /*
+//                 * This will be called if the camera could not be opened
+//                 */
+//            }
+//        });
+//        camera.setPipeline(new YellowBlobDetectionPipeline());
+//    }
+//
+//    private Mat getROI(int x1, int y1, int x2, int y2) {
+//        Mat frame = new Mat();
+//        Rect roi = new Rect(x1, y1, x2, y2); // Define the ROI (x, y, width, height)
+//        Mat roiFrame = new Mat(frame, roi);
+//
+//        return roiFrame;
+//    }
+//
+//
+//}
+
+
 
 public class AutoCommon extends LinearOpMode {
     protected RobotHardware robot;
@@ -114,11 +198,11 @@ public class AutoCommon extends LinearOpMode {
         while (opModeInInit()) {
             telemetry.addData("Coordinate", "(" + (int) cX + ", " + (int) cY + ")");
             telemetry.addData("Distance in Inch", (getDistance(width)));
-            if (cX <= 225+error && cX >= 225-error && cY <= 173+error && cY >= 173-error) { //change 227 to the cX value when piece is in center
+            if (cX <= 225+error && cX >= 225-error) { //change 227 to the cX value when piece is in center
                 telemetry.addData("Location: ", "Center");
                 pos = 2;
                 //                center();
-            } else if (cX <= 560+error && cX >= 560-error && cY <= 200+error && cY >= 200-error) {//change 60 to the cX value when piece is in center
+            } else if (cX <= 415+error && cX >= 415-error ) {//change 60 to the cX value when piece is in center
                 telemetry.addData("Location", "Right");
                 //                right();
                 pos = 3;
@@ -218,7 +302,7 @@ public class AutoCommon extends LinearOpMode {
             Mat yellowMask = new Mat();
             Core.inRange(hsvFrame, lowerYellow, upperYellow, yellowMask);
 
-            Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5, 5));
+            Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(40, 40));
             Imgproc.morphologyEx(yellowMask, yellowMask, Imgproc.MORPH_OPEN, kernel);
             Imgproc.morphologyEx(yellowMask, yellowMask, Imgproc.MORPH_CLOSE, kernel);
 
