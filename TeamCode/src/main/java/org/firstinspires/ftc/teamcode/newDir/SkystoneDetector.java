@@ -3,99 +3,105 @@ package org.firstinspires.ftc.teamcode.newDir;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
+import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.imgproc.Moments;
 import org.openftc.easyopencv.OpenCvPipeline;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class SkystoneDetector extends OpenCvPipeline {
-    Telemetry telemetry;
-    Mat mat = new Mat();
-    public enum Location {
-        LEFT,
-        RIGHT,
-        MIDDLE,
-        NOT_FOUND
-    }
-    private Location location;
-    static final Rect LEFT_ROI = new Rect(
-        new Point(60, 35),
-        new Point(120, 75)
-    );
-    static final Rect MIDDLE_ROI = new Rect(
-            new Point(60, 35),
-            new Point(120, 75)
-    );
-    static final Rect RIGHT_ROI = new Rect(
-            new Point(140, 35),
-            new Point(200, 75)
-    );
-    static double PERCENT_COLOR_THRESHOLD = 0.4;
-    public SkystoneDetector(Telemetry t){telemetry = t;}
+    double cX = 0;
+    double cY = 0;
+    double width = 0;
+    public static final double objectWidthInRealWorldUnits = 3.75;  // Replace with the actual width of the object in real-world units
+    public static final double focalLength = 728;  // Replace with the focal length of the camera in pixels
+
     @Override
-    public Mat processFrame(Mat input){
-        Imgproc.cvtColor(input, mat, Imgproc.COLOR_RGB2HSV);
-        Scalar lowHSV = new Scalar(23, 50, 70);
-        Scalar highHSV = new Scalar(32, 255, 255);
+    public Mat processFrame(Mat input) {
+        // Preprocess the frame to detect yellow regions
+        Mat yellowMask = preprocessFrame(input);
 
-        Core.inRange(mat, lowHSV, highHSV, mat);
-        Mat left = mat.submat(LEFT_ROI);
-        Mat right = mat.submat(RIGHT_ROI);
-        Mat middle = mat.submat(MIDDLE_ROI);
+        // Find contours of the detected yellow regions
+        List<MatOfPoint> contours = new ArrayList<>();
+        Mat hierarchy = new Mat();
+        Imgproc.findContours(yellowMask, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
 
-        double leftValue = Core.sumElems(left).val[0]/LEFT_ROI.area()/255;
-        double rightValue = Core.sumElems(right).val[0]/RIGHT_ROI.area()/255;
-        double middleValue = Core.sumElems(middle).val[0]/MIDDLE_ROI.area()/255;
+        // Find the largest yellow contour (blob)
+        MatOfPoint largestContour = findLargestContour(contours);
 
-        left.release();
-        right.release();
+        if (largestContour != null) {
+            // Draw a red outline around the largest detected object
+            Imgproc.drawContours(input, contours, contours.indexOf(largestContour), new Scalar(255, 0, 0), 2);
+            // Calculate the width of the bounding box
+            width = calculateWidth(largestContour);
 
-        telemetry.addData("Left raw value", (int) Core.sumElems(left).val[0]);
-        telemetry.addData("Right raw value", (int) Core.sumElems(right).val[0]);
-        telemetry.addData("Middle raw value", (int) Core.sumElems(middle).val[0]);
-        telemetry.addData("Left percentage", Math.round(leftValue * 100) + "%");
-        telemetry.addData("Right percentage", Math.round(rightValue * 100) + "%");
-        telemetry.addData("Middle percentage", Math.round(middleValue * 100) + "%");
+            // Display the width next to the label
+            String widthLabel = "Width: " + (int) width + " pixels";
+            Imgproc.putText(input, widthLabel, new Point(cX + 10, cY + 20), Imgproc.FONT_HERSHEY_SIMPLEX, 0.25, new Scalar(0, 255, 0), 2);
+            //Display the Distance
+            String distanceLabel = "Distance: " + String.format("%.2f", getDistance(width)) + " inches";
+            Imgproc.putText(input, distanceLabel, new Point(cX + 10, cY + 60), Imgproc.FONT_HERSHEY_SIMPLEX, 0.25, new Scalar(0, 255, 0), 2);
+            // Calculate the centroid of the largest contour
+            Moments moments = Imgproc.moments(largestContour);
+            cX = moments.get_m10() / moments.get_m00();
+            cY = moments.get_m01() / moments.get_m00();
 
-        boolean spikeRight = leftValue > PERCENT_COLOR_THRESHOLD;
-        boolean spikeLeft = rightValue > PERCENT_COLOR_THRESHOLD;
-        boolean spikeMiddle = middleValue > PERCENT_COLOR_THRESHOLD;
+            // Draw a dot at the centroid
+            String label = "(" + (int) cX + ", " + (int) cY + ")";
+            Imgproc.putText(input, label, new Point(cX + 10, cY), Imgproc.FONT_HERSHEY_COMPLEX, 0.5, new Scalar(0, 255, 0), 2);
+            Imgproc.circle(input, new Point(cX, cY), 5, new Scalar(0, 255, 0), -1);
 
-
-        if (spikeMiddle){
-            location = Location.MIDDLE;
-            telemetry.addData("Centerstage Location","middle");
         }
-        else if(spikeLeft){
-            location = Location.RIGHT;
-            telemetry.addData("Centerstage Location", "right");
-        }
-        else if(spikeRight){
-            location = Location.LEFT;
-            telemetry.addData("Centerstage Location", "left");
-        }
-        else{
-            location = Location.NOT_FOUND;
-            telemetry.addData("Centerstage Location", "not found");
-        }
-        telemetry.update();
 
-        Imgproc.cvtColor(mat, mat, Imgproc.COLOR_GRAY2RGB);
-        telemetry.update();
-
-        Imgproc.cvtColor(mat, mat, Imgproc.COLOR_GRAY2RGB);
-
-        Scalar colorStone = new Scalar(255, 0, 0);
-        Scalar colorSkystone = new Scalar(255, 0, 0);
-        Imgproc.rectangle(mat, LEFT_ROI, location == Location.LEFT? colorSkystone:colorStone);
-        Imgproc.rectangle(mat, RIGHT_ROI, location == Location.RIGHT? colorSkystone:colorStone);
-        Imgproc.rectangle(mat, MIDDLE_ROI, location == Location.MIDDLE? colorSkystone:colorStone);
-        return mat;
+        return input;
     }
 
+    private Mat preprocessFrame(Mat frame) {
+        Mat hsvFrame = new Mat();
+        Imgproc.cvtColor(frame, hsvFrame, Imgproc.COLOR_BGR2HSV);
 
-    public Location getLocation() {
-        return location;
+        Scalar lowerYellow = new Scalar(180, 146, 130);
+        Scalar upperYellow = new Scalar(180, 177, 255);
+
+
+        Mat yellowMask = new Mat();
+        Core.inRange(hsvFrame, lowerYellow, upperYellow, yellowMask);
+
+        Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5, 5));
+        Imgproc.morphologyEx(yellowMask, yellowMask, Imgproc.MORPH_OPEN, kernel);
+        Imgproc.morphologyEx(yellowMask, yellowMask, Imgproc.MORPH_CLOSE, kernel);
+
+        return yellowMask;
+    }
+
+    private MatOfPoint findLargestContour(List<MatOfPoint> contours) {
+        double maxArea = 0;
+        MatOfPoint largestContour = null;
+
+        for (MatOfPoint contour : contours) {
+            double area = Imgproc.contourArea(contour);
+            if (area > maxArea) {
+                maxArea = area;
+                largestContour = contour;
+            }
+        }
+
+        return largestContour;
+    }
+
+    private double calculateWidth(MatOfPoint contour) {
+        Rect boundingRect = Imgproc.boundingRect(contour);
+        return boundingRect.width;
+    }
+
+    private static double getDistance(double width) {
+        double distance = (objectWidthInRealWorldUnits * focalLength) / width;
+        return distance;
     }
 }
